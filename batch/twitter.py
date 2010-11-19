@@ -4,6 +4,9 @@ import time
 import sqlite3
 import re
 from plugins.generals import *
+import sys
+reload(sys)
+sys.setdefaultencoding( "utf-8" )
 
 class twitter():
 
@@ -72,14 +75,23 @@ class twitter():
             title = ""
             url = ""
             if len(urls) > 0:
-                try:
-                    title = unicode(gettitle(urls[0]),"utf-8")
-                except:
-                    pass
                 url = urls[0]
+                try:
+                    t = gettitle(urls[0])
+                    print t
+                    title = unicode(t['title'])
+                    url = t['url']
+                except Exception as e:
+                    if str(e) == "HTTP Error 404: Not Found":
+                        pass
+                    else:
+                        print t['title'].encode("utf-8","ignore")
+                        print "unicode error"
+                    
+               
             dd =  time.strptime(twit['created_at'], "%a, %d %b %Y %H:%M:%S +0000")
             #print twit
-            self.cur.execute(u"""insert into tweet (url, url_title , date , from_user , from_user_id  ,retweet,text) values ("%s","%s",'%d-%d-%d','%s',%d,%d,"%s")""" % (url,title,dd.tm_year,dd.tm_mon,dd.tm_mday,twit['from_user'],twit['from_user_id'],retw,text))
+            self.cur.execute("""insert into tweet (url, url_title , date , from_user , from_user_id  ,retweet,text) values ("%s","%s",'%d-%d-%d','%s',%d,%d,"%s")""" % (url,title,dd.tm_year,dd.tm_mon,dd.tm_mday,twit['from_user'],twit['from_user_id'],retw,text))
             
                 
             
